@@ -1,0 +1,17 @@
+{
+  "name": "ai-workflow-builder",
+  "private": true,
+  "packageManager": "yarn@1.22.22",
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev": "set -a; . ./.env; set +a; turbo run dev --parallel",
+    "setup": "node scripts/setup.mjs",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:smoke": "node scripts/smoke.mjs",
+    "db:generate": "yarn workspace @awb/db generate",
+    "db:migrate": "set -a; . ./.env; set +a; yarn workspace @awb/db migrate"
+  },
+  "devDependencies": {"turbo": "^2.5.0", "typescript": "^5.8.0"}
+}

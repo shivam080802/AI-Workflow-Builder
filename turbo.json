@@ -1,0 +1,10 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalEnv": ["DATABASE_URL", "REDIS_URL", "PORT", "WEB_ORIGIN", "PUBLIC_API_URL", "VITE_API_URL", "SECRET_ENCRYPTION_KEY", "NODE_ENV"],
+  "tasks": {
+    "build": {"dependsOn": ["^build"], "outputs": ["dist/**"]},
+    "typecheck": {"dependsOn": ["^build"]},
+    "test": {"dependsOn": ["build"]},
+    "dev": {"cache": false, "persistent": true}
+  }
+}

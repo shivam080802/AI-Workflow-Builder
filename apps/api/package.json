@@ -1,0 +1,6 @@
+{
+  "name":"@awb/api","version":"0.1.0","private":true,
+  "scripts":{"dev":"tsx watch src/index.ts","build":"tsc -p tsconfig.json","typecheck":"tsc --noEmit -p tsconfig.json"},
+  "dependencies":{"@awb/contracts":"0.1.0","@awb/db":"0.1.0","@awb/security":"0.1.0","bullmq":"^5.40.0","cors":"^2.8.5","express":"^4.21.0","ioredis":"^5.4.0","zod":"^3.24.0"},
+  "devDependencies":{"@types/cors":"^2.8.17","@types/express":"^4.17.21","@types/node":"^22.0.0","tsx":"^4.19.0"}
+}

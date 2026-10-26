@@ -1,0 +1,5 @@
+{
+  "name":"@awb/db","version":"0.1.0","private":true,"main":"dist/index.js","types":"dist/index.d.ts",
+  "scripts":{"generate":"prisma generate","migrate":"prisma migrate deploy","migrate:dev":"prisma migrate dev","build":"tsc -p tsconfig.json","typecheck":"tsc --noEmit -p tsconfig.json"},
+  "dependencies":{"@prisma/client":"^6.5.0"},"devDependencies":{"prisma":"^6.5.0"}
+}

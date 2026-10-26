@@ -1,0 +1,154 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Workflow {
+  id          String @id @default(cuid())
+  workspaceId String?
+  workspace   Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name        String
+  draft       Json
+  version     Int @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  versions    WorkflowVersion[]
+  runs        Run[]
+  webhook     WebhookSecret?
+  @@index([workspaceId, updatedAt])
+}
+
+model User {
+  id           String @id @default(cuid())
+  email        String @unique
+  name         String
+  passwordSalt String
+  passwordHash String
+  createdAt    DateTime @default(now())
+  memberships  Membership[]
+  sessions     Session[]
+}
+
+model Workspace {
+  id          String @id @default(cuid())
+  name        String
+  createdAt   DateTime @default(now())
+  memberships Membership[]
+  workflows   Workflow[]
+  credentials Credential[]
+  auditEvents AuditEvent[]
+}
+
+model Membership {
+  userId      String
+  workspaceId String
+  role        String
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  @@id([userId, workspaceId])
+}
+
+model Session {
+  id        String @id @default(cuid())
+  tokenHash String @unique
+  userId    String
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  @@index([userId, expiresAt])
+}
+
+model Credential {
+  id          String @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name        String
+  kind        String
+  ciphertext  String
+  createdAt   DateTime @default(now())
+  @@index([workspaceId, kind])
+}
+
+model WebhookSecret {
+  workflowId String @id
+  workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  ciphertext String
+  createdAt DateTime @default(now())
+}
+
+model AuditEvent {
+  id          String @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  actorId     String?
+  action      String
+  targetId    String
+  createdAt   DateTime @default(now())
+  @@index([workspaceId, createdAt])
+}
+
+model WorkflowVersion {
+  id          String @id @default(cuid())
+  workflowId  String
+  workflow    Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  number      Int
+  graph       Json
+  createdAt   DateTime @default(now())
+  runs        Run[]
+  @@unique([workflowId, number])
+}
+
+model Run {
+  id          String @id @default(cuid())
+  workflowId  String
+  workflow    Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  versionId   String
+  version     WorkflowVersion @relation(fields: [versionId], references: [id])
+  status      String @default("queued")
+  input       String
+  deliveryId  String?
+  output      String?
+  error       String?
+  createdAt   DateTime @default(now())
+  startedAt   DateTime?
+  finishedAt  DateTime?
+  steps       RunStep[]
+  approvals   Approval[]
+  @@index([workflowId, createdAt])
+  @@unique([workflowId, deliveryId])
+}
+
+model Approval {
+  id        String @id @default(cuid())
+  runId     String
+  run       Run @relation(fields: [runId], references: [id], onDelete: Cascade)
+  nodeId    String
+  prompt    String
+  status    String @default("pending")
+  expiresAt DateTime
+  decidedAt DateTime?
+  decidedBy String?
+  createdAt DateTime @default(now())
+  @@unique([runId, nodeId])
+  @@index([status, expiresAt])
+}
+
+model RunStep {
+  id        String @id @default(cuid())
+  runId     String
+  run       Run @relation(fields: [runId], references: [id], onDelete: Cascade)
+  nodeId    String
+  kind      String
+  status    String
+  input     String
+  output    String?
+  route     String?
+  error     String?
+  startedAt DateTime @default(now())
+  finishedAt DateTime?
+  @@unique([runId, nodeId])
+}
